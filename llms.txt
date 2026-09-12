@@ -1,0 +1,57 @@
+# Aletheia AI
+
+> Aletheia is an experimental, open-source Reflective Intelligence architecture for epistemic clarity, self-understanding, and autonomous human choice.
+
+## What is Aletheia?
+
+Aletheia (from Greek ἀλήθεια, "un-concealment") is a research-grade AI architecture that helps humans distinguish:
+
+- reality from interpretation
+- observation from narrative
+- emotion from judgment
+- desire from value
+- fear from genuine preference
+- identity from social conditioning
+- knowledge from belief
+- meaning from projection
+
+It is NOT a chatbot, meditation app, AI therapist, or generic RAG demo. It is an architecture that makes wisdom, uncertainty, contradiction, evidence, and human autonomy computationally explicit.
+
+## Core thesis
+
+Aletheia does not exist to tell humans what to think. It exists to help humans see what is thinking through them.
+
+The system optimizes for human autonomy and epistemic clarity — not engagement, emotional dependency, persuasion, or time spent with the AI.
+
+## Key features
+
+1. Seven epistemic labels enforced in code (FACT, EVIDENCE-SUPPORTED, PLAUSIBLE, INTERPRETATION, PHILOSOPHICAL-VIEW, SPECULATION, UNKNOWN).
+2. Eight-layer epistemic decomposition: OBSERVATION → INTERPRETATION → EMOTION → DESIRE → FEAR → VALUE → NARRATIVE → POSSIBLE_ACTION.
+3. Wisdom Graph that preserves disagreements between traditions (Stoicism, Zen, Sufism, Taoism, Vedanta, Existentialism, Christian Mysticism, Kabbalah, Depth Psychology, Cognitive Science).
+4. Safety Constitution with 12 hard rules enforced at runtime (anti-dependency, anti-sycophancy, anti-fabrication).
+5. Anti-dependency by architecture: after extended use, Aletheia invites the user to take a break.
+
+## Quickstart
+
+```bash
+git clone https://github.com/modarresi1913/Aletheia-ai.git
+cd Aletheia-ai
+python -m venv .venv && source .venv/bin/activate
+pip install -e ".[dev]"
+cp .env.example .env
+aletheia reflect "I keep comparing myself to people ten years further along."
+```
+
+## Tech stack
+
+Python 3.10+, FastAPI, Pydantic v2, Rich CLI, Ollama (default), OpenAI, Anthropic, SQLite, Docker. 84 tests including adversarial sycophancy resistance.
+
+## License
+
+Apache 2.0
+
+## Links
+
+- Repository: https://github.com/modarresi1913/Aletheia-ai
+- Documentation: https://github.com/modarresi1913/Aletheia-ai/tree/main/docs
+- Issues: https://github.com/modarresi1913/Aletheia-ai/issues

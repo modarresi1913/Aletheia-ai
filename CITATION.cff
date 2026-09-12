@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+title: "Aletheia AI: An Architecture for Reflective Intelligence"
+message: >-
+  Aletheia is an experimental Reflective Intelligence architecture
+  for epistemic clarity, self-understanding, autonomous choice, and
+  meaningful action. If this software contributes to your research,
+  please cite it using the metadata below.
+type: software
+authors:
+  - alias: "Aletheia AI Contributors"
+repository-code: "https://github.com/aletheia-ai/aletheia-ai"
+license: Apache-2.0
+version: 0.1.0
+date-released: "2024-01-01"
+keywords:
+  - reflective-intelligence
+  - epistemology
+  - wisdom-graph
+  - socratic-ai
+  - ai-alignment
+  - philosophy-of-mind
+preferred-citation:
+  type: software
+  title: "Aletheia AI: An Architecture for Reflective Intelligence"
+  authors:
+    - alias: "Aletheia AI Contributors"
+  year: 2024
+  url: "https://github.com/aletheia-ai/aletheia-ai"

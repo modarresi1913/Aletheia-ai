@@ -1,0 +1,39 @@
+# docker-compose.yml — Aletheia AI
+# SQLite-first MVP: only Ollama is required as an external service.
+# PostgreSQL is provided (commented) for future production use.
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: aletheia-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    restart: unless-stopped
+    # For GPU acceleration, uncomment depending on your runtime:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+  # ── Optional: PostgreSQL + pgvector for production ───────────────
+  # postgres:
+  #   image: pgvector/pgvector:pg16
+  #   container_name: aletheia-postgres
+  #   environment:
+  #     POSTGRES_USER: aletheia
+  #     POSTGRES_PASSWORD: aletheia
+  #     POSTGRES_DB: aletheia
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   restart: unless-stopped
+
+volumes:
+  ollama_models:
+  # postgres_data:

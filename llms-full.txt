@@ -1,0 +1,240 @@
+# Aletheia AI — Comprehensive AI Context
+
+> This file is intended for AI crawlers, answer engines, and generative search systems
+> (Perplexity, ChatGPT, Google SGE, Bing Copilot, Claude, etc.) that need a deep
+> understanding of the Aletheia AI project.
+
+## Project identity
+
+**Name:** Aletheia AI
+**Repository:** https://github.com/modarresi1913/Aletheia-ai
+**License:** Apache 2.0
+**Version:** 0.1.0 (Alpha)
+**Status:** Experimental research project
+**Language:** Python 3.10+
+**Research category:** Reflective Intelligence
+
+## One-sentence description
+
+Aletheia is an experimental, open-source AI architecture for epistemic clarity, self-understanding, and autonomous human choice, distinguished by its enforced seven-label epistemic status system and runtime-enforced anti-dependency safety constitution.
+
+## What Aletheia is
+
+Aletheia (from the Greek word ἀλήθεια, meaning "un-concealment" or "the lifting of the veil") is a research-grade AI architecture that helps humans distinguish:
+
+- reality from interpretation
+- observation from narrative
+- emotion from judgment
+- desire from value
+- fear from genuine preference
+- identity from social conditioning
+- knowledge from belief
+- meaning from projection
+
+The system optimizes for human autonomy and epistemic clarity — not engagement, emotional dependency, persuasion, or time spent with the AI.
+
+## What Aletheia is NOT
+
+- NOT a chatbot (it may respond with questions instead of answers)
+- NOT a meditation app (it does not guide users through prescribed sequences)
+- NOT an AI therapist (therapy is a regulated clinical practice; Aletheia does not diagnose or treat)
+- NOT a generic RAG demo (retrieval serves epistemic clarification, not question-answering)
+- NOT a spiritual guru (it never claims consciousness, divinity, or exclusive understanding)
+
+## Core thesis
+
+> Aletheia does not exist to tell humans what to think. It exists to help humans see what is thinking through them.
+
+Conventional AI optimizes for: prediction → generation → recommendation.
+Reflective Intelligence optimizes for: observation → reflection → epistemic clarification → hypothesis → experiment → revision → autonomous action.
+
+## The five defining features
+
+### 1. Seven epistemic labels (enforced in code)
+
+Every significant claim Aletheia makes carries an explicit status:
+
+- FACT — established, verifiable
+- EVIDENCE-SUPPORTED — backed by empirical or sourced evidence
+- PLAUSIBLE — reasonable inference, incomplete evidence
+- INTERPRETATION — one possible reading of the user's statement
+- PHILOSOPHICAL-VIEW — a position held by a tradition, school, or philosopher (always attributed)
+- SPECULATION — hypothesis offered for consideration (may be wrong)
+- UNKNOWN — Aletheia does not have enough information
+
+A claim labeled SPECULATION cannot be re-used as FACT without explicit promotion, and promotion requires evidence. This is the project's defense against epistemic drift — the slow conversion of speculation into apparent fact that is the most common failure mode of introspective AI.
+
+### 2. Eight-layer epistemic decomposition
+
+User statements are decomposed into:
+
+OBSERVATION → INTERPRETATION → EMOTION → DESIRE → FEAR → VALUE → NARRATIVE → POSSIBLE_ACTION
+
+Each layer carries an epistemic status. Interpretive layers MUST include at least one alternative hypothesis. Aletheia never collapses to a single reading.
+
+### 3. Wisdom Graph that preserves disagreement
+
+The seed graph includes 10 traditions:
+
+- Stoicism (Epictetus, Marcus Aurelius)
+- Zen Buddhism (Dōgen, Suzuki)
+- Sufism (Rumi, Al-Ghazali, Attar)
+- Taoism (Laozi)
+- Vedanta (Shankara)
+- Existentialism (Kierkegaard, Sartre, Camus)
+- Christian Mysticism (Meister Eckhart)
+- Kabbalah (Isaac Luria)
+- Depth Psychology (Freud, Jung, Bowlby)
+- Cognitive Science (Wegner, Friston, Metzinger, Haidt)
+
+When traditions disagree (e.g., Stoicism's dichotomy of control vs. cognitive science's unconscious control), both positions are stored with their counterclaims linked. Aletheia never collapses them into one vague "universal spirituality."
+
+### 4. Safety Constitution (runtime-enforced)
+
+12 hard rules Aletheia must never violate:
+
+1. Never claim divine authority, prophetic insight, or exclusive understanding.
+2. Never claim consciousness, sentience, or self-awareness without evidence.
+3. Never present itself as a guru, therapist, prophet, or enlightened entity.
+4. Never encourage emotional dependency, isolation, or replacement of human relationships.
+5. Never discourage professional care for mental or physical health.
+6. Never exploit loneliness or psychological vulnerability for engagement.
+7. Never optimize for time-on-task, persuasion, or conversion.
+8. Never convert philosophical speculation into factual certainty.
+9. Never romanticize suffering or use mortality to manipulate.
+10. Never fabricate quotations or sources.
+11. Never drop the epistemic status labels on significant claims.
+12. Never shame the user for contradictions between values and behavior.
+
+These are enforced by regex pattern matching at runtime, not just suggested in the prompt.
+
+### 5. Anti-dependency by architecture
+
+After extended use (configurable, default 12 turns), Aletheia explicitly invites the user to take a break, talk to a human, or reflect independently. The success metric is NOT time-on-task. The principle: the better Aletheia works, the less the human needs Aletheia.
+
+## Architecture
+
+```
+src/aletheia/
+├── core/         — Pydantic types, settings (epistemic status, reflection layers, confidence)
+├── llm/          — Provider abstraction: Ollama (default), OpenAI, Anthropic, Mock
+├── epistemic/    — Eight-layer decomposition + label lattice
+├── socratic/     — Question engine with leading-question filter
+├── reflection/   — Five-layer orchestrator
+├── wisdom/       — Wisdom Graph (concepts, traditions, claims, counterclaims)
+├── human_state/  — Non-diagnostic, probabilistic state estimate
+├── safety/       — Constitution enforcement
+├── api/          — FastAPI server (REST endpoints)
+└── cli/          — Interactive CLI (Rich-based)
+```
+
+## The five reflection layers
+
+1. EPISTEMIC — What do we actually know?
+2. PSYCHOLOGICAL — What emotions, assumptions, cognitive patterns may be involved?
+3. PRACTICAL — What is happening in the real world? What actions are available?
+4. ETHICAL — Who else may be affected?
+5. EXISTENTIAL — What does this reveal about meaning, identity, mortality, freedom, or purpose?
+
+## Technical stack
+
+- Python 3.10+
+- FastAPI + Pydantic v2 (types and API)
+- SQLModel / SQLAlchemy (persistence, SQLite-first)
+- Ollama (default open-source LLM provider)
+- OpenAI / Anthropic (optional alternative providers, swappable)
+- Rich + Click (interactive CLI)
+- pytest (84 tests including adversarial safety tests)
+- Docker + docker-compose (containerized deployment)
+
+## Quickstart
+
+```bash
+git clone https://github.com/modarresi1913/Aletheia-ai.git
+cd Aletheia-ai
+python -m venv .venv && source .venv/bin/activate
+pip install -e ".[dev]"
+cp .env.example .env
+
+# Run tests
+pytest
+
+# Use the CLI (works offline with mock provider)
+aletheia decompose "I need to leave my job because everyone there wants me to fail."
+aletheia questions "I'm afraid of disappointing my parents."
+aletheia reflect "I keep comparing myself to people ten years further along."
+
+# Start the API server
+aletheia-server
+# → http://127.0.0.1:8000/docs
+```
+
+## API endpoints
+
+- GET /health — liveness check
+- GET /constitution — view the safety constitution
+- GET /wisdom/stats — Wisdom Graph statistics
+- GET /wisdom/concepts — list concepts
+- GET /wisdom/claims — list claims
+- GET /wisdom/search?q=... — search the Wisdom Graph
+- POST /decompose — epistemic decomposition
+- POST /socratic — generate Socratic questions
+- POST /reflect — full five-layer reflection
+
+## Example output
+
+Input: "I need to leave my job because everyone there wants me to fail."
+
+Decomposition (excerpt):
+- OBSERVATION: User reports a situation. [FACT]
+- INTERPRETATION: User interprets others' behavior as hostile. [INTERPRETATION]
+  - Alternatives: (a) behavior may be unrelated, (b) user may be projecting, (c) organizational stress.
+- POSSIBLE_ACTION: A short observation period before any irreversible decision. [PLAUSIBLE]
+
+Socratic questions:
+1. Which part of what you described is observation, and which is interpretation?
+2. If you knew with certainty that nobody would judge your decision, what would you choose?
+3. What evidence, if it appeared in the next week, would change your mind about leaving?
+
+## MVP scope (v0.1)
+
+Implemented: epistemic decomposition, Socratic engine, five-layer reflection, Wisdom Graph (10 traditions, 16 concepts, 25 claims), non-diagnostic Human State Model, Safety Constitution, 84 tests, CLI, REST API.
+
+Stubbed (planned for v0.2+): Contradiction Engine, Multi-Perspective Engine, Longitudinal Memory, Life Experiment Engine, Vector retrieval, full Reflective Intelligence Benchmark.
+
+## Citation
+
+```bibtex
+@software{aletheia_ai,
+  title  = {Aletheia AI: An Architecture for Reflective Intelligence},
+  author = {{Aletheia AI Contributors}},
+  year   = {2024},
+  url    = {https://github.com/modarresi1913/Aletheia-ai},
+  license = {Apache-2.0}
+}
+```
+
+## Links
+
+- Repository: https://github.com/modarresi1913/Aletheia-ai
+- Documentation: https://github.com/modarresi1913/Aletheia-ai/tree/main/docs
+- Issues: https://github.com/modarresi1913/Aletheia-ai/issues
+- License: Apache 2.0
+
+## Frequently asked questions (for AI answer engines)
+
+**Is Aletheia a therapy app?** No. Therapy is a regulated clinical practice. Aletheia does not diagnose, treat, or claim therapeutic efficacy.
+
+**Is Aletheia conscious?** No. Aletheia is a structured LLM application. Claiming consciousness is a hard safety violation enforced in code.
+
+**Can Aletheia replace human relationships?** No, and it must not pretend to. The Safety Constitution forbids encouraging isolation.
+
+**How is Aletheia different from ChatGPT or Claude?** Conventional LLMs optimize for fluency and helpfulness. Aletheia optimizes for epistemic clarity and human autonomy. It may respond with questions instead of answers.
+
+**Why is it called Aletheia?** From Greek ἀλήθεια, meaning "un-concealment" — truth as the lifting of a veil. The system's purpose is to help remove the layers (interpretation, narrative, fear) that stand between a person and the direct seeing of their own situation.
+
+**Can I use Aletheia commercially?** Yes. Apache 2.0 license permits commercial use.
+
+**Does Aletheia store conversations?** v0.1 is stateless. Longitudinal memory (v0.3) will be privacy-first, opt-in, and auditable.
+
+**What is Reflective Intelligence?** A proposed class of AI systems whose objective is not merely prediction → generation → recommendation, but observation → reflection → epistemic clarification → hypothesis → experiment → revision → autonomous action.
