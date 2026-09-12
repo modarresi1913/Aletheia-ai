@@ -8,5 +8,6 @@ from __future__ import annotations
 
 from .graph import WisdomGraph
 from .retrieval import WisdomRetriever
+from .vector_retrieval import VectorRetriever
 
-__all__ = ["WisdomGraph", "WisdomRetriever"]
+__all__ = ["VectorRetriever", "WisdomGraph", "WisdomRetriever"]

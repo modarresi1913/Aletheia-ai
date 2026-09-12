@@ -18,7 +18,7 @@ class TestMetaEndpoints:
         assert r.status_code == 200
         data = r.json()
         assert data["status"] == "ok"
-        assert data["version"] == "0.1.0"
+        assert data["version"] == "0.2.0"
         assert "wisdom_graph" in data
 
     def test_constitution(self, client: TestClient) -> None:

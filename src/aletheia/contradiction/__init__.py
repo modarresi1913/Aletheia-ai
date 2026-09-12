@@ -1,53 +1,15 @@
 """Contradiction Engine — tracks recurring value/behavior tensions.
 
-MVP scope note: This module is a typed interface stub. Full implementation
-(longitudinal contradiction tracking, value/behavior coherence scoring) is
-planned for v0.2. See `docs/architecture.md` for the design.
+The engine NEVER uses contradictions to shame the user. Instead, it surfaces
+patterns and offers multiple interpretations:
+- The definition of the value may have changed
+- The value may be in genuine tension with another value (e.g., freedom vs. security)
+- The behavior may be fear-driven deviation from the stated value
+- The "value" may be aspirational rather than actual
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Any
+from .engine import ContradictionEngine
+from .types import Contradiction, ContradictionDetection
 
-from ..core.types import HypothesisStatus
-
-
-@dataclass
-class Contradiction:
-    """A tension between two positions held by the same user."""
-
-    id: str
-    description: str
-    side_a: str
-    side_b: str
-    evidence_a: list[str] = field(default_factory=list)
-    evidence_b: list[str] = field(default_factory=list)
-    status: HypothesisStatus = HypothesisStatus.ACTIVE
-    notes: list[str] = field(default_factory=list)
-
-
-@dataclass
-class ContradictionEngine:
-    """Stub engine. Real implementation will track longitudinal memory."""
-
-    contradictions: list[Contradiction] = field(default_factory=list)
-
-    def detect(self, *args: Any, **kwargs: Any) -> list[Contradiction]:
-        """Not yet implemented. Returns an empty list."""
-        return []
-
-    def render(self, contradiction: Contradiction) -> str:
-        lines = [
-            f"Contradiction: {contradiction.description}",
-            f"  side A: {contradiction.side_a}  (evidence: {len(contradiction.evidence_a)})",
-            f"  side B: {contradiction.side_b}  (evidence: {len(contradiction.evidence_b)})",
-            f"  status: {contradiction.status.value}",
-        ]
-        if contradiction.notes:
-            lines.append("  notes:")
-            for n in contradiction.notes:
-                lines.append(f"    - {n}")
-        return "\n".join(lines)
-
-
-__all__ = ["Contradiction", "ContradictionEngine"]
+__all__ = ["Contradiction", "ContradictionDetection", "ContradictionEngine"]

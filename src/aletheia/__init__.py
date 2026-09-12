@@ -14,5 +14,5 @@ The public API surface is intentionally small. Import submodules explicitly:
     from aletheia.llm import get_llm_provider
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __all__ = ["__version__"]

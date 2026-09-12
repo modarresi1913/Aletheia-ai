@@ -133,6 +133,88 @@ def health() -> None:
     console.print(table)
 
 
+# ── v0.2 commands ─────────────────────────────────────────────
+
+
+@cli.command()
+@click.argument("statement")
+def perspectives(statement: str) -> None:
+    """Generate a multi-perspective view of STATEMENT."""
+    from ..perspectives.engine import MultiPerspectiveEngine
+    engine = MultiPerspectiveEngine()
+    view = engine.all_perspectives(statement)
+    console.print(Panel(engine.render_view(view), border_style="magenta"))
+
+
+@cli.command()
+@click.argument("statement", required=False)
+@click.option("--user-id", default="anonymous", show_default=True)
+def contradictions(statement: str | None, user_id: str) -> None:
+    """Detect contradictions between declared values and recent decisions."""
+    from ..contradiction.engine import ContradictionEngine
+    engine = ContradictionEngine()
+    detection = engine.detect(user_id=user_id, current_statement=statement)
+    console.print(Panel(engine.render_detection(detection), border_style="yellow"))
+
+
+# ── v0.3 commands ─────────────────────────────────────────────
+
+
+@cli.command()
+@click.argument("statement")
+@click.option("--user-id", default="anonymous", show_default=True)
+@click.option("--n", default=3, show_default=True, help="Max proposals.")
+def experiments(statement: str, user_id: str, n: int) -> None:
+    """Propose small reversible life experiments for STATEMENT."""
+    from ..experiments.engine import ExperimentEngine
+    engine = ExperimentEngine()
+    proposals = engine.propose(statement, max_proposals=n, user_id=user_id)
+    for i, exp in enumerate(proposals, 1):
+        console.print(Panel(engine.render(exp), title=f"Experiment {i}", border_style="green"))
+
+
+@cli.command(name="memory")
+@click.option("--user-id", default="anonymous", show_default=True)
+@click.option("--list", "list_entries", is_flag=True, help="List all entries.")
+@click.option("--report", "show_report", is_flag=True, help="Generate Personal Reflection Report.")
+@click.option("--wipe", is_flag=True, help="Wipe ALL memory for the user. IRREVERSIBLE.")
+def memory_cmd(user_id: str, list_entries: bool, show_report: bool, wipe: bool) -> None:
+    """Longitudinal memory: list, report, or wipe."""
+    from ..memory.report import ReflectionReportGenerator
+    from ..memory.store import LongitudinalMemory
+    mem = LongitudinalMemory()
+    if wipe:
+        count = mem.wipe(user_id)
+        console.print(f"[red]Wiped {count} entries for user '{user_id}'.[/red]")
+        return
+    if show_report:
+        gen = ReflectionReportGenerator(memory=mem)
+        report = gen.generate(user_id=user_id)
+        console.print(Panel(report.render_text(), title="Personal Reflection Report", border_style="cyan"))
+        return
+    # Default: list
+    entries = mem.all_for_user(user_id)
+    if not entries:
+        console.print(f"[dim]No memory entries for user '{user_id}'.[/dim]")
+        return
+    table = Table(title=f"Memory for '{user_id}' ({len(entries)} entries)")
+    table.add_column("id", style="dim")
+    table.add_column("kind", style="cyan")
+    table.add_column("text", overflow="fold")
+    table.add_column("status", style="yellow")
+    table.add_column("confidence")
+    for e in entries[-20:]:  # show last 20
+        table.add_row(
+            e.id,
+            e.kind,
+            e.text[:100] + ("…" if len(e.text) > 100 else ""),
+            e.hypothesis_status.value,
+            f"{e.confidence:.2f}",
+        )
+    console.print(table)
+    console.print(f"[dim]Stats: {mem.stats(user_id)}[/dim]")
+
+
 # ─────────────────────────────────────────────────────────────
 # Interactive mode
 # ─────────────────────────────────────────────────────────────

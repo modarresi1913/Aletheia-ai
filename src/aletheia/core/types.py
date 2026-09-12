@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -280,6 +280,12 @@ class ReflectionResult(BaseModel):
     human_state: HumanStateEstimate
     possible_actions: list[str] = Field(default_factory=list)
     safety_notes: list[str] = Field(default_factory=list)
+    # v0.2 fields
+    contradictions: list[dict[str, Any]] = Field(default_factory=list)
+    perspectives: list[dict[str, Any]] = Field(default_factory=list)
+    # v0.3 fields
+    proposed_experiments: list[dict[str, Any]] = Field(default_factory=list)
+    memory_updates: list[dict[str, Any]] = Field(default_factory=list)
     meta: dict[str, str] = Field(default_factory=dict)
 
 

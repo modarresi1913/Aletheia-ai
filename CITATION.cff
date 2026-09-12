@@ -10,7 +10,7 @@ authors:
   - alias: "Aletheia AI Contributors"
 repository-code: "https://github.com/aletheia-ai/aletheia-ai"
 license: Apache-2.0
-version: 0.1.0
+version: 0.2.0
 date-released: "2024-01-01"
 keywords:
   - reflective-intelligence

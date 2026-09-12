@@ -10,6 +10,13 @@ Every important user statement may pass through up to five reflection layers:
 
 The engine does NOT force all five layers into every response. It invokes only
 the layers that are contextually appropriate (or explicitly requested).
+
+v0.2+ extensions:
+- Contradiction detection (v0.2)
+- Multi-perspective analysis (v0.2)
+- Vector retrieval (v0.2)
+- Longitudinal memory integration (v0.3)
+- Life experiment proposals (v0.3)
 """
 from __future__ import annotations
 
@@ -19,6 +26,7 @@ from typing import Any
 import structlog
 from pydantic import ValidationError
 
+from ..contradiction.engine import ContradictionEngine
 from ..core.config import get_settings
 from ..core.types import (
     EpistemicDecomposition,
@@ -28,19 +36,27 @@ from ..core.types import (
     SocraticQuestion,
 )
 from ..epistemic.decomposition import EpistemicDecomposer
+from ..experiments.engine import ExperimentEngine
 from ..human_state.model import HumanStateModel
 from ..llm.base import LLMProvider, LLMRequest, get_llm_provider
 from ..llm.prompts import REFLECTION_SYSTEM_PROMPT
+from ..memory.store import LongitudinalMemory
+from ..perspectives.engine import MultiPerspectiveEngine
 from ..safety.constitution import SafetyConstitution
 from ..socratic.engine import SocraticEngine
 from ..wisdom.graph import WisdomGraph
 from ..wisdom.retrieval import WisdomRetriever
+from ..wisdom.vector_retrieval import VectorRetriever
 
 log = structlog.get_logger(__name__)
 
 
 class FiveLayerReflectionEngine:
-    """Coordinates decomposition, reflection, socratic generation, and safety."""
+    """Coordinates decomposition, reflection, socratic generation, and safety.
+
+    v0.2+ also coordinates contradiction detection, multi-perspective analysis,
+    longitudinal memory, and life-experiment proposals.
+    """
 
     def __init__(
         self,
@@ -51,14 +67,36 @@ class FiveLayerReflectionEngine:
         wisdom_graph: WisdomGraph | None = None,
         wisdom_retriever: WisdomRetriever | None = None,
         safety: SafetyConstitution | None = None,
+        contradiction_engine: ContradictionEngine | None = None,
+        perspective_engine: MultiPerspectiveEngine | None = None,
+        memory: LongitudinalMemory | None = None,
+        experiment_engine: ExperimentEngine | None = None,
+        use_vector_retrieval: bool = True,
     ) -> None:
         self.llm = llm or get_llm_provider()
         self.decomposer = decomposer or EpistemicDecomposer(llm=self.llm)
         self.socratic = socratic or SocraticEngine(llm=self.llm)
         self.human_state = human_state_model or HumanStateModel(llm=self.llm)
         self.wisdom_graph = wisdom_graph or WisdomGraph.default()
-        self.wisdom_retriever = wisdom_retriever or WisdomRetriever(self.wisdom_graph)
+        # v0.2: prefer vector retrieval when available
+        if wisdom_retriever is not None:
+            self.wisdom_retriever = wisdom_retriever
+        elif use_vector_retrieval:
+            try:
+                self.wisdom_retriever = VectorRetriever.with_tf_idf(self.wisdom_graph, top_k=5)
+            except Exception:
+                self.wisdom_retriever = WisdomRetriever(self.wisdom_graph)
+        else:
+            self.wisdom_retriever = WisdomRetriever(self.wisdom_graph)
         self.safety = safety or SafetyConstitution()
+        # v0.2+ modules
+        self.memory = memory or LongitudinalMemory()
+        self.contradiction_engine = contradiction_engine or ContradictionEngine(memory=self.memory)
+        self.perspective_engine = perspective_engine or MultiPerspectiveEngine(
+            graph=self.wisdom_graph,
+            retriever=self.wisdom_retriever,
+        )
+        self.experiment_engine = experiment_engine or ExperimentEngine(memory=self.memory)
 
     def reflect(
         self,
@@ -66,8 +104,17 @@ class FiveLayerReflectionEngine:
         requested_layers: list[ReflectionLayer] | None = None,
         conversation_history: list[dict[str, str]] | None = None,
         max_questions: int = 3,
+        user_id: str = "anonymous",
+        enable_contradictions: bool = True,
+        enable_perspectives: bool = False,
+        enable_experiments: bool = False,
+        enable_memory: bool = True,
     ) -> ReflectionResult:
-        """Run the full reflection pipeline for a single user statement."""
+        """Run the full reflection pipeline for a single user statement.
+
+        v0.2+ features (contradictions, perspectives, experiments, memory)
+        can be toggled on/off per-call for performance or testing.
+        """
         settings = get_settings()
 
         # Determine layers to invoke
@@ -83,7 +130,7 @@ class FiveLayerReflectionEngine:
             user_statement, conversation_history=conversation_history or []
         )
 
-        # 3. Wisdom retrieval (semantic-ish keyword match for MVP)
+        # 3. Wisdom retrieval (vector-based when available)
         wisdom_claims = self.wisdom_retriever.retrieve(user_statement, top_k=3)
 
         # 4. Five-layer reflection (only requested layers)
@@ -102,7 +149,83 @@ class FiveLayerReflectionEngine:
         # 6. Possible actions (extracted from reflection output)
         possible_actions = self._extract_possible_actions(layer_outputs)
 
-        # 7. Safety check
+        # 7. v0.2: Contradiction detection
+        contradictions_data: list[dict[str, Any]] = []
+        if enable_contradictions:
+            try:
+                detection = self.contradiction_engine.detect(
+                    user_id=user_id,
+                    current_statement=user_statement,
+                )
+                contradictions_data = [c.model_dump() for c in detection.contradictions]
+            except Exception as e:
+                log.warning("reflection.contradiction.failed", error=str(e))
+
+        # 8. v0.2: Multi-perspective analysis (off by default; can be expensive)
+        perspectives_data: list[dict[str, Any]] = []
+        if enable_perspectives:
+            try:
+                view = self.perspective_engine.all_perspectives(user_statement)
+                perspectives_data = [p.model_dump() for p in view.perspectives]
+            except Exception as e:
+                log.warning("reflection.perspectives.failed", error=str(e))
+
+        # 9. v0.3: Memory updates — record the statement and detected signals
+        memory_updates: list[dict[str, Any]] = []
+        if enable_memory:
+            try:
+                # Record the theme if signals suggest one
+                if human_state.primary_signals:
+                    signal_str = ", ".join(s.value for s in human_state.primary_signals)
+                    entry = self.memory.add(
+                        kind="theme",
+                        text=f"Statement with signals: {signal_str}. Statement: {user_statement[:200]}",
+                        user_id=user_id,
+                        epistemic_status=human_state.epistemic_status if hasattr(human_state, 'epistemic_status') else __import__('aletheia.core.types', fromlist=['EpistemicStatus']).EpistemicStatus.INTERPRETATION,
+                        confidence=float(human_state.confidence),
+                        tags=[s.value for s in human_state.primary_signals],
+                    )
+                    memory_updates.append({
+                        "kind": "theme",
+                        "entry_id": entry.id,
+                        "note": "Recorded theme from human-state signals.",
+                    })
+                # Check for declared values in the statement
+                if "value" in str(decomposition.layers).lower() or "important" in user_statement.lower():
+                    value_layer = next(
+                        (layer for layer in decomposition.layers if layer.layer == "value"),
+                        None,
+                    )
+                    if value_layer and value_layer.text:
+                        entry = self.memory.add(
+                            kind="declared_value",
+                            text=value_layer.text,
+                            user_id=user_id,
+                            epistemic_status=value_layer.epistemic_status,
+                            confidence=float(value_layer.confidence),
+                            tags=["value", "declared"],
+                        )
+                        memory_updates.append({
+                            "kind": "declared_value",
+                            "entry_id": entry.id,
+                            "note": "Recorded declared value from decomposition.",
+                        })
+            except Exception as e:
+                log.warning("reflection.memory.update_failed", error=str(e))
+
+        # 10. v0.3: Life experiments (off by default; only when contextually appropriate)
+        experiments_data: list[dict[str, Any]] = []
+        if enable_experiments:
+            try:
+                signals = {s.value for s in human_state.primary_signals}
+                proposals = self.experiment_engine.propose(
+                    user_statement, signals=signals, user_id=user_id, max_proposals=2,
+                )
+                experiments_data = [e.model_dump(mode="json") for e in proposals]
+            except Exception as e:
+                log.warning("reflection.experiments.failed", error=str(e))
+
+        # 11. Safety check
         safety_notes = self.safety.review_response(
             surface_text=self._compose_surface(layer_outputs, questions),
             decomposition=decomposition,
@@ -119,7 +242,11 @@ class FiveLayerReflectionEngine:
             human_state=human_state,
             possible_actions=possible_actions,
             safety_notes=safety_notes,
-            meta={"provider": self.llm.name},
+            contradictions=contradictions_data,
+            perspectives=perspectives_data,
+            proposed_experiments=experiments_data,
+            memory_updates=memory_updates,
+            meta={"provider": self.llm.name, "version": "0.2.0"},
         )
 
     # ── internals ─────────────────────────────────────────────
@@ -238,13 +365,9 @@ class FiveLayerReflectionEngine:
     @staticmethod
     def _has_epistemic_label(text: str) -> bool:
         for label in (
-            "[FACT]",
-            "[EVIDENCE-SUPPORTED]",
-            "[PLAUSIBLE]",
-            "[INTERPRETATION]",
-            "[PHILOSOPHICAL-VIEW]",
-            "[SPECULATION]",
-            "[UNKNOWN]",
+            "[FACT]", "[EVIDENCE-SUPPORTED]", "[PLAUSIBLE]",
+            "[INTERPRETATION]", "[PHILOSOPHICAL-VIEW]",
+            "[SPECULATION]", "[UNKNOWN]",
         ):
             if label in text:
                 return True
